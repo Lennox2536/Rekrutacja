@@ -13,6 +13,7 @@ import pl.jakub.Restaurant.Exception.CannotDeleteReservationException;
 import pl.jakub.Restaurant.Exception.CannotMakeReservationException;
 import pl.jakub.Restaurant.Service.ReservationService;
 
+import javax.mail.internet.AddressException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +37,9 @@ public class ReservationController {
         }
         catch (CannotMakeReservationException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+        catch (AddressException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Problem with email");
         }
         catch (MailException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Problem with mail", e);

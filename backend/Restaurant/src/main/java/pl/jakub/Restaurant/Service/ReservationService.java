@@ -10,6 +10,8 @@ import pl.jakub.Restaurant.Exception.CannotCancelReservationException;
 import pl.jakub.Restaurant.Exception.CannotDeleteReservationException;
 import pl.jakub.Restaurant.Exception.CannotMakeReservationException;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -30,10 +32,12 @@ public class ReservationService {
     @Autowired
     private Tables tables;
 
-    public HashMap<String, String> makeReservation(Reservation reservation) throws CannotMakeReservationException {
+    public HashMap<String, String> makeReservation(Reservation reservation) throws CannotMakeReservationException, AddressException {
         if(reservation.getDate().minusHours(2L).isBefore(LocalDateTime.now())){
             throw new CannotMakeReservationException("Too late for this reservation");
         }
+
+        new InternetAddress(reservation.getEmail()).validate();
 
         Table table = tables.findByNumber(reservation.getSeatNumber()).orElseThrow(() ->
                 new CannotMakeReservationException("No such table found"));
@@ -49,15 +53,14 @@ public class ReservationService {
         if(tables.getReservedTables(reservation.getDate(), reservation.getDuration()).contains(reservation.getSeatNumber()))
             throw new CannotMakeReservationException("Seat already taken");
 
+        repository.save(reservation);
+
         mailService.sendMail(reservation.getEmail(),
                 "Reservation created",
                 String.format("Id of your reservation: %s", reservation.getId()));
 
-        repository.save(reservation);
-
         HashMap<String, String> body = new HashMap<>();
         body.put("reservationId", reservation.getId());
-
         return body;
     }
 
