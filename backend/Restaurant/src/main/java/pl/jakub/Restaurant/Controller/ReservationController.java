@@ -3,6 +3,7 @@ package pl.jakub.Restaurant.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.jakub.Restaurant.Data.Reservation;
@@ -35,6 +36,9 @@ public class ReservationController {
         }
         catch (CannotMakeReservationException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+        catch (MailException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Problem with mail", e);
         }
         catch (Exception e){
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
