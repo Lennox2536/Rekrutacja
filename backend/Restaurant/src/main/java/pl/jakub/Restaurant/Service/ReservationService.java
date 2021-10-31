@@ -49,14 +49,14 @@ public class ReservationService {
         if(tables.getReservedTables(reservation.getDate(), reservation.getDuration()).contains(reservation.getSeatNumber()))
             throw new CannotMakeReservationException("Seat already taken");
 
-        HashMap<String, String> body = new HashMap<>();
-        body.put("reservationId", reservation.getId());
-
         mailService.sendMail(reservation.getEmail(),
                 "Reservation created",
                 String.format("Id of your reservation: %s", reservation.getId()));
 
         repository.save(reservation);
+
+        HashMap<String, String> body = new HashMap<>();
+        body.put("reservationId", reservation.getId());
 
         return body;
     }
